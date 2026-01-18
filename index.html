@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML5 Video Streaming Demo</title>
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <h1>HTML5 Video Streaming Demo</h1>
+  <p>A demonstration of native HTML5 video capabilities with JavaScript controls and ImageKit video optimization.</p>
+
+  <!-- Basic Video Example -->
+  <section id="basic">
+    <h2>Basic Video with Controls</h2>
+    <p>The simplest implementation using the native <code>&lt;video&gt;</code> element with browser controls.</p>
+
+    <video
+      class="demo-video"
+      src="https://ik.imagekit.io/ikmedia/example_video.mp4"
+      width="640"
+      height="360"
+      controls
+    ></video>
+  </section>
+
+  <!-- Video with Poster -->
+  <section id="poster">
+    <h2>Video with Poster Thumbnail</h2>
+    <p>Display an image before the video loads using ImageKit's automatic thumbnail generation.</p>
+
+    <video
+      class="demo-video"
+      src="https://ik.imagekit.io/ikmedia/example_video.mp4"
+      width="640"
+      height="360"
+      controls
+      poster="https://ik.imagekit.io/ikmedia/example_video.mp4/ik-thumbnail.jpg?tr=so-5,w-640,h-360"
+    ></video>
+  </section>
+
+  <!-- Autoplay Example -->
+  <section id="autoplay">
+    <h2>Autoplay (Muted)</h2>
+    <p>Browsers require videos to be muted for autoplay to work. Perfect for hero banners and background videos.</p>
+
+    <video
+      class="demo-video"
+      src="https://ik.imagekit.io/ikmedia/example_video.mp4"
+      width="640"
+      height="360"
+      autoplay
+      muted
+      loop
+      playsinline
+    ></video>
+  </section>
+
+  <!-- Custom Video Player -->
+  <section id="custom">
+    <h2>Custom JavaScript Video Player</h2>
+    <p>A fully custom video player built with vanilla JavaScript using the HTML5 Video API.</p>
+
+    <div class="video-container">
+      <video id="custom-video" src="https://ik.imagekit.io/ikmedia/example_video.mp4"></video>
+      <div class="controls">
+        <button id="playPause">Play</button>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress" id="progress"></div>
+        </div>
+        <div class="volume-control">
+          <span>Vol</span>
+          <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        </div>
+        <span class="time" id="time">0:00 / 0:00</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video.js ABS Streaming -->
+  <section id="videojs">
+    <h2>Adaptive Bitrate Streaming with Video.js</h2>
+    <p>Video.js handles HLS and DASH streaming, automatically adjusting quality based on network conditions.</p>
+
+    <div class="videojs-container">
+      <video
+        id="videojs-player"
+        class="video-js vjs-default-skin vjs-big-play-centered"
+        controls
+        width="640"
+        height="360"
+      >
+        <source src="https://ik.imagekit.io/demo/sample-video.mp4/ik-master.m3u8?tr=sr-240_360_480_720" type="application/x-mpegURL">
+      </video>
+    </div>
+  </section>
+
+  <!-- ImageKit Features -->
+  <section id="imagekit">
+    <h2>ImageKit Video Transformations</h2>
+    <p>Transform videos on-the-fly with URL parameters - no pre-encoding required.</p>
+
+    <h3>Resized Video (320x180)</h3>
+    <video
+      class="demo-video"
+      src="https://ik.imagekit.io/ikmedia/example_video.mp4?tr=w-320,h-180"
+      width="320"
+      height="180"
+      controls
+    ></video>
+
+    <h3>Multiple Format Sources</h3>
+    <video class="demo-video" width="640" height="360" controls>
+      <source src="https://ik.imagekit.io/ikmedia/example_video.mp4?tr=f-webm" type="video/webm">
+      <source src="https://ik.imagekit.io/ikmedia/example_video.mp4?tr=f-mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <h3>Video with Text Watermark</h3>
+    <video
+      class="demo-video"
+      src="https://ik.imagekit.io/ikmedia/example_video.mp4?tr=l-text,i-My%20Company,fs-40,co-white,bg-00000080,pa-20,l-end"
+      width="640"
+      height="360"
+      controls
+    ></video>
+  </section>
+
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <script>
+    // Custom Video Player
+    const video = document.getElementById('custom-video');
+    const playPauseBtn = document.getElementById('playPause');
+    const progressBar = document.getElementById('progressBar');
+    const progress = document.getElementById('progress');
+    const timeDisplay = document.getElementById('time');
+    const volumeControl = document.getElementById('volume');
+
+    // Play/Pause toggle
+    playPauseBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        playPauseBtn.textContent = 'Pause';
+      } else {
+        video.pause();
+        playPauseBtn.textContent = 'Play';
+      }
+    });
+
+    // Update button when video state changes
+    video.addEventListener('play', () => playPauseBtn.textContent = 'Pause');
+    video.addEventListener('pause', () => playPauseBtn.textContent = 'Play');
+    video.addEventListener('ended', () => playPauseBtn.textContent = 'Play');
+
+    // Update progress bar
+    video.addEventListener('timeupdate', () => {
+      const percentage = (video.currentTime / video.duration) * 100;
+      progress.style.width = percentage + '%';
+      timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+    });
+
+    // Click to seek
+    progressBar.addEventListener('click', (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const percentage = (e.clientX - rect.left) / rect.width;
+      video.currentTime = percentage * video.duration;
+    });
+
+    // Volume control
+    volumeControl.addEventListener('input', (e) => {
+      video.volume = e.target.value;
+    });
+
+    // Format seconds to M:SS
+    function formatTime(seconds) {
+      if (isNaN(seconds)) return '0:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+      return mins + ':' + secs;
+    }
+
+    // Initialize Video.js player
+    const vjsPlayer = videojs('videojs-player', {
+      fluid: true,
+      playbackRates: [0.5, 1, 1.5, 2],
+      html5: {
+        vhs: {
+          overrideNative: true
+        },
+        nativeAudioTracks: false,
+        nativeVideoTracks: false
+      }
+    });
+  </script>
+</body>
+</html>
